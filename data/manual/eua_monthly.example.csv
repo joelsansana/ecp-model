@@ -1,0 +1,7 @@
+date,eua_eur_t,source
+# ---------------------------------------------------------------------------
+# Monthly average of daily EUA settles, EUR per tonne. Fill from a source you are
+# allowed to redistribute: Ember's carbon price tracker download, EEX primary
+# auction results, or a delayed exchange feed. One row per month is enough
+# (the loader takes the mean of anything finer).
+# ---------------------------------------------------------------------------

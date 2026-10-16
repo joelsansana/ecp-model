@@ -1,0 +1,47 @@
+name: monthly-data-snapshot
+
+on:
+  schedule:
+    # 12:10 UTC on the 20th of each month: a few days after Comext publishes,
+    # and after the ECB/FRED/PPI releases that land earlier in the month.
+    - cron: '10 12 20 * *'
+  workflow_dispatch:
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -e .
+
+      - name: require the hand-curated headline file
+        run: |
+          if [ ! -s data/manual/ecp_headlines.csv ]; then
+            echo "::error::data/manual/ecp_headlines.csv is missing - refusing to" \
+                 "publish an ECP built on the illustrative placeholder file."
+            exit 1
+          fi
+
+      - name: pull public series
+        continue-on-error: true
+        run: python -m ecpmodel.ingest.run_all --only fx fred ppi comext
+
+      - name: fit the model
+        continue-on-error: true
+        run: python -m ecpmodel.models.ecm_ssm
+
+      - name: upload the dated raw snapshots (vintage archive)
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-{{ github.run_id }}
+          path: data/raw/
+          retention-days: 400
+
+      - name: upload model outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: processed-{{ github.run_id }}
+          path: data/processed/
+          retention-days: 90

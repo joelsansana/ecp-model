@@ -1,0 +1,23 @@
+name: ci
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -e '.[dev]'
+      - run: ruff check src tests
+      - run: pytest -q
+
+# Ingestion is deliberately NOT part of CI: it needs the network, is slow, and
+# upstream endpoints change without notice.  A failing CI run should mean "the
+# code is wrong", never "Eurostat is down".
+#
+# The monthly snapshot workflow below is what builds the vintage archive.  It
+# runs a few days after the Comext release and uploads the dated raw parquet
+# files as artifacts.  Keeping those artifacts is the only way to move from
+# "publication-lag aware" to "revision aware" backtesting - see the caveat at
+# the top of src/ecpmodel/features/build.py.

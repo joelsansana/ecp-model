@@ -1,0 +1,13 @@
+data/raw/
+data/interim/
+data/processed/
+data/*.csv          # untracked ad-hoc exports, keep the hand-curated ones in data/manual/
+.env
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.DS_Store

@@ -1,0 +1,8 @@
+start,end,label
+# ---------------------------------------------------------------------------
+# Known disruption windows. Define these from public news BEFORE looking at
+# residuals, and keep each one documented. If kappa comes out significantly
+# above zero the regime column is doing work; if not, drop it.
+# Do not tune these windows to make the fit look better.
+# ---------------------------------------------------------------------------
+2021-10-01,2021-12-31,example: energy crisis / feedstock rationing

@@ -1,0 +1,59 @@
+# ---------------------------------------------------------------------------
+# Data configuration for the public-data ECP state-space model.
+#
+# Every block below is about *availability*, not just values: the model is
+# fitted on an as-of panel, so the publication lags at the bottom drive the
+# backtest as much as the series themselves do.
+# ---------------------------------------------------------------------------
+start: '2015-01'
+
+fred:
+  brent: DCOILBRENTEU          # USD/bbl, daily (EIA via FRED)
+  # IMF Europe natural gas price, USD/MMBtu, monthly.  The shorter id PNGASEU
+  # is retired on FRED and now 404s; PNGASEUUSDM is the live series.
+  eu_gas: PNGASEUUSDM              # USD/MMBtu, monthly (IMF via FRED)
+
+ecb:
+  eurusd: EXR                  # USD per 1 EUR (monthly average, key M.USD.EUR.SP00.A)
+
+eurostat:
+  dataset: sts_inpp_m
+  geo: DE                      # reporter for the chemicals PPI
+  nace: C20                    # manufacture of chemicals and chemical products
+  fallbacks:
+    - {geo: EU27_2020, nace: C20}
+    - {geo: DE, nace: C201}
+
+comext:
+  reporters: [DE, NL, BE, AT, PL, CZ, SK, HU]
+  partners: [WORLD]            # or an explicit partner list
+  flows: {import: 1, export: 2}
+  indicators: [VALUE_IN_EUROS, QUANTITY_IN_100KG]
+  products:
+    ethylene: '290121'
+    propylene: '290122'
+    butadiene: '290124'
+    naphtha: '271012'          # sanity check only; heterogeneous basket
+  min_tonnes: 200              # drop thin cells (100 kg units -> t)
+
+# Days between the reference month-end and the public availability of the
+# first release. Used by features/build.py for vintage-aware backtests.
+# This models *publication lag*, not revision: Comext values you pull today are
+# final. Snapshot monthly (save_raw writes dated files) to build a real vintage
+# archive over time.
+availability_lag_days:
+  fx: 5
+  brent: 7
+  eu_gas: 35
+  eua: 5
+  headline: 7
+  comext: 65
+  ppi: 35
+  propylene: 65
+  butadiene: 65
+  naphtha: 65
+
+manual:
+  headlines: data/manual/ecp_headlines.csv
+  eua: data/manual/eua_monthly.csv
+  regimes: data/manual/regimes.csv

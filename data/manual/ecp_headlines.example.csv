@@ -1,0 +1,9 @@
+month,settlement_eur_t,low,high,type,published_on,source,reliability,notes
+# ---------------------------------------------------------------------------
+# ILLUSTRATIVE PLACEHOLDERS - these are NOT market data.
+# Every number below is invented to exercise the schema; the loader warns loudly
+# when it falls back to this file. Replace the whole file with settlements you
+# are legally allowed to quote, keeping the column layout.
+# ---------------------------------------------------------------------------
+2015-01-01,850,820,880,monthly,2015-01-20,EXAMPLE PLACEHOLDER - replace me,3,illustrative row; delete this file section
+2015-04-01,860,830,890,quarterly,2015-03-25,EXAMPLE PLACEHOLDER - replace me,3,Q2 illustrative; expands to 3 months

@@ -1,0 +1,59 @@
+# ---------------------------------------------------------------------------
+# Model configuration: what the state-space model is allowed to use, and the
+# starting values / grids the fitter and the backtest search over.
+# ---------------------------------------------------------------------------
+# Observation equations that enter the filter.  Keep each one only if it helps
+# out of sample (see notebook 02).  "headline" is the only series that pins the
+# level of p_t; without enough of them the model degrades to "cost anchor plus
+# smoothed trade data".
+#
+# PPI is available but OFF by default.  It is a whole-economy chemicals index,
+# and with b_p free the filter simply replaces the price with the index: the
+# standardised index moves the state by ~7 k EUR/t per unit, s_p collapses to
+# ~20 EUR/t, gamma is pushed to zero and the whole cost anchor stops mattering.
+# Re-enable it only if `make backtest` says it helps out of sample.
+observations: [headline, comext]
+
+# Distributed-lag weights on the cost block, applied to brent/gas/eua in that
+# order. Shapes only (not a continuous grid) - a fine grid overfits the short
+# sample. Pick by out-of-sample CRPS.
+lag_weights:
+  - [0.3, 0.5, 0.2]
+  - [0.0, 0.6, 0.4]
+  - [0.5, 0.4, 0.1]
+  - [0.2, 0.3, 0.3, 0.2]
+  - [1.0, 0.0, 0.0]
+
+# Comext unit values reflect deliveries priced off the previous month's
+# settlement. 1 is the default; 2 needs a 4-lag state (not wired up here).
+comext_lag: 1
+
+# Starting values for the maximum-likelihood fit, in model units
+# (k EUR/t, monthly). beta is initialised by OLS on the visible headlines.
+start:
+  s_eta: 0.05        # state noise
+  s_h: 0.05          # headline observation noise
+  s_c: 0.05          # Comext observation noise
+  s_p: 0.30          # PPI observation noise (standardised series)
+  gamma: -0.30       # speed of error correction, in (-1, 0)
+  theta: 0.30        # same-month cost pass-through, in (0, 1)
+  kappa: 1.0         # extra state noise in disruption months
+  a_c: 0.0           # Comext basis (customs value - contract price)
+  a_p: 0.0           # PPI level
+  b_p: 0.30          # PPI loading on the three-month average of p
+
+multi_starts: 5
+forecast_horizon: 3
+
+draws:
+  n: 300
+  seed: 0
+
+backtest:
+  start: '2019-01-31'
+  end: '2025-12-31'
+  step_months: 1      # set to 3 while developing, 1 for the final run
+  stress_window: ['2021-01-01', '2022-12-31']
+
+bands: [0.80, 0.90]
+real_price_base: '2015-01'
